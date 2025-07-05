@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/secure_job_system';
+const MONGO_URI = process.env.MONGO_URI || '';
 
 export const connectMongo = async () => {
   try {

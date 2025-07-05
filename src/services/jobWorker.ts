@@ -4,14 +4,14 @@ import { JobDocument } from '../models/jobModel';
 import { AccountModel } from '../models/accountModel';
 import { JobModel } from '../models/jobModel';
 import { logAuditEvent } from './auditService';
+import { getEnvVarAsNumber } from '../utils/envValidator';
 
+// Load environment variables for worker configuration
+const POLL_INTERVAL_MS = getEnvVarAsNumber('WORKER_POLL_INTERVAL');
+const BATCH_SIZE = getEnvVarAsNumber('WORKER_BATCH_SIZE');
+const JOB_TYPES = ['transfer', 'reconcile']; 
+const STUCK_JOB_TIMEOUT_MS = getEnvVarAsNumber('STUCK_JOB_TIMEOUT');
 
-const POLL_INTERVAL_MS = 3 * 60 * 1000; // 3 minutes
-const BATCH_SIZE = 2;
-const JOB_TYPES = ['transfer', 'reconcile']; // Extend as needed
-const STUCK_JOB_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
-
-// Placeholder: Implement your job type-specific logic here
 async function processJobByType(type: string, payload: any, job: JobDocument) {
   switch (type) {
     case 'transfer': {
@@ -49,7 +49,7 @@ async function processJobByType(type: string, payload: any, job: JobDocument) {
 }
 
 export async function processJob(job: JobDocument) {
-  if (isJobCompleted(job)) return; // Idempotency: skip if already completed
+  if (isJobCompleted(job)) return; 
   try {
     const payload = getDecryptedPayload(job, 'worker');
     await processJobByType(job.type, payload, job);
@@ -62,7 +62,7 @@ export async function processJob(job: JobDocument) {
 }
 
 async function pollAndProcessJobs() {
-  // 0. Recover stuck jobs
+  // Recover stuck jobs
   const now = new Date();
   const stuckJobs = await JobModel.find({
     status: 'processing',
@@ -72,7 +72,7 @@ async function pollAndProcessJobs() {
     job.status = 'queued';
     job.processing_started_at = undefined;
     await job.save();
-    // Optionally log or audit this recovery
+    
     console.log(`Recovered stuck job ${job._id}`);
   }
 
@@ -97,6 +97,7 @@ async function pollAndProcessJobs() {
           { new: true }
         );
         if (claimed) claimedJobs.push(claimed);
+        await logAuditEvent({ job_id: String(job._id), action: 'STATE_CHANGE', actor : "worker", details: `queued -> processing` });
       }
 
       // 4. Process all claimed jobs in this batch concurrently
@@ -111,7 +112,6 @@ export async function startJobWorker() {
   console.log('Job worker started');
 }
 
-//To run as a standalone worker:
 if (require.main === module) {
   startJobWorker();
 } 

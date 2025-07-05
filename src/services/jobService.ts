@@ -84,7 +84,7 @@ export async function retryJob(job: JobDocument, error: string, maxRetries = 5) 
 
   } else {
     // Exponential backoff: e.g., 2^retry_count minuteas
-    const delay = Math.pow(1, job.retry_count) * 1000 * 60;
+    const delay = Math.pow(2, job.retry_count) * 1000 * 60;
     job.status = 'queued';
     job.run_at = new Date(Date.now() + delay);
     await job.save();
@@ -113,7 +113,6 @@ export function isJobCompleted(job: JobDocument) {
 // Decrypt job payload (with audit log)
 export function getDecryptedPayload(job: JobDocument, actor = 'worker'): any {
   const encrypted = JSON.parse(job.payload_encrypted.toString());
-  // Audit log should be awaited in real use, but for sync signature, just fire and forget
   logAuditEvent({ job_id: String(job._id), action: 'DECRYPT_PAYLOAD', actor });
   return JSON.parse(decryptPayload(encrypted));
 } 

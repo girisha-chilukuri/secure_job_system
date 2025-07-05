@@ -6,7 +6,7 @@ type EncryptionResult = {
   data: string;
 };
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'changemechangemechangemechangeme'; // 32 chars for AES-256
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || ''; 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12; // Recommended for GCM
 
@@ -17,7 +17,6 @@ export function encryptPayload(plain: string): EncryptionResult {
   let encrypted = cipher.update(plain, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   const tag = cipher.getAuthTag();
-  // TODO: Call audit log for encryption event
   return {
     iv: iv.toString('base64'),
     tag: tag.toString('base64'),

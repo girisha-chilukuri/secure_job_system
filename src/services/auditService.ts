@@ -22,5 +22,3 @@ export async function logAuditEvent({
 
 // Example usage:
 // await logAuditEvent({ job_id, action: 'ENCRYPT_PAYLOAD', actor: 'system' });
-// await logAuditEvent({ job_id, action: 'DECRYPT_PAYLOAD', actor: 'worker' });
-// await logAuditEvent({ job_id, action: 'STATE_CHANGE', actor: 'api', details: 'queued -> processing' }); 

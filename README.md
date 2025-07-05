@@ -57,7 +57,6 @@ A robust, auditable, and secure job processing system for fintech operations (e.
   - **Encryption at Rest**: Native encryption of job payloads is easier to enforce in MongoDB
   - **Idempotency & Manual Replay**: Custom logic for idempotency, retries, and manual replay is easier to control
   - **No External Broker**: Avoids the operational complexity of running Redis or RabbitMQ for strict audit/compliance needs
-  - **Drawbacks**: Slightly less throughput than in-memory queues, but much higher security and audit guarantees
 
 ---
 

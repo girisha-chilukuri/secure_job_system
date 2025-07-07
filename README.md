@@ -39,7 +39,7 @@ A robust, auditable, and secure job processing system for fintech operations (e.
 - **Batch Processing**: Jobs are processed in batches (configurable size) and each batch is processed concurrently with `Promise.all`
 - **Polling**: Worker polls at a configurable interval (e.g., every 3 minutes)
 - **Stuck Job Recovery**: Jobs stuck in `processing` for too long are re-queued for retry
-- **No Worker Threads**: Concurrency is managed at the job-claiming and batch-processing level, not with Node.js worker threads
+
 
 ---
 
